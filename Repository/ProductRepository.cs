@@ -47,26 +47,21 @@ namespace product.Repository
 
         public ProductResponse GetProducts(string productData, string sortBy, string sortOrder, int? pageSize, int? page)
         {
-            // Defaults and input sanitization
             int actualPageSize = pageSize.HasValue && pageSize > 0 ? pageSize.Value : 10;
             int actualPage = page.HasValue && page > 0 ? page.Value : 1;
             string actualSortBy = string.IsNullOrWhiteSpace(sortBy) ? "Id" : sortBy;
             string actualSortOrder = string.IsNullOrWhiteSpace(sortOrder) ? "asc" : sortOrder.ToLower();
 
-            // Build the base query
             IQueryable<Product> query = _productDbContext.Products;
 
-            // Apply filtering
             if (!string.IsNullOrWhiteSpace(productData))
             {
                 query = query.Where(p => p.Name.Contains(productData));
             }
 
-            // Count before pagination
             int totalCount = query.Count();
             int totalPages = (int)Math.Ceiling(totalCount / (double)actualPageSize);
 
-            // Apply sorting (dynamic via EF.Property)
             if (actualSortOrder == "asc")
             {
                 query = query.OrderBy(p => EF.Property<object>(p, actualSortBy));
@@ -76,14 +71,12 @@ namespace product.Repository
                 query = query.OrderByDescending(p => EF.Property<object>(p, actualSortBy));
             }
 
-            // Apply pagination
             var productsPage = query
                 .Skip((actualPage - 1) * actualPageSize)
                 .Take(actualPageSize)
                 .ToList();
 
 
-            // Return a structured response
             ProductResponse productResponse = new ProductResponse
             {
                 totalCount = totalCount,
@@ -104,7 +97,6 @@ namespace product.Repository
 
             if (productFromDb == null) { return false; }
 
-            //updating the data
             productFromDb.Name = updateProduct.name;
             productFromDb.Description = updateProduct.description;
             productFromDb.Price = updateProduct.price;

@@ -60,8 +60,5 @@ namespace product.Controllers
             _productRepository.DeleteProduct(id);
             return Ok();
         }
-
-        //[HttpGet]
-        //public ActionResult GetFilteredProducts([FromQuery] all needed parameters)
     }
 }
